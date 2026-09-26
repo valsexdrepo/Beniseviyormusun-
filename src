@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <!-- Mobil cihazlarda yakınlaştırmayı (zoom) ve kaydırmayı engellemek için özel ayarlar -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Sana Bir Sorum Var</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary-glow: #ff0055;
+            --secondary-glow: #aa00ff;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Poppins', sans-serif;
+            background: radial-gradient(circle at center, #2a0015 0%, #110008 50%, #050002 100%);
+            height: 100vh;
+            width: 100vw;
+            overflow: hidden; /* Sayfa kaydırmasını tamamen kapatır */
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            touch-action: none; /* Mobilde kaydırma jestlerini engeller */
+        }
+
+        /* Uçuşan Kalp Efektleri */
+        #particles-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .particle {
+            position: absolute;
+            bottom: -50px;
+            width: 20px;
+            height: 20px;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23ff0055' opacity='0.3'%3e%3cpath d='M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z'/%3e%3c/svg%3e");
+            background-size: contain;
+            background-repeat: no-repeat;
+            animation: floatUp 10s infinite linear;
+        }
+
+        @keyframes floatUp {
+            0% { transform: translateY(0) scale(0.5) rotate(0deg); opacity: 0; }
+            20% { opacity: 0.5; }
+            80% { opacity: 0.5; }
+            100% { transform: translateY(-120vh) scale(1.5) rotate(360deg); opacity: 0; }
+        }
+
+        /* Cam Efektli Ana Kart */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 24px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5), inset 0 0 0 1px rgba(255, 255, 255, 0.05);
+            z-index: 10;
+            transition: opacity 0.5s ease, transform 0.5s ease;
+            width: 90%; /* Mobilde genişlik ayarı */
+            max-width: 400px;
+        }
+
+        .fade-out {
+            opacity: 0;
+            transform: scale(0.9);
+            pointer-events: none;
+        }
+
+        /* Buton Stilleri */
+        .btn-gorgeous {
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            touch-action: none; /* Mobilde buton üzerinde jestleri engeller */
+            user-select: none; /* Metin seçimini engeller */
+            -webkit-tap-highlight-color: transparent; /* Mobildeki mavi tıklama efektini kaldırır */
+        }
+
+        .btn-gorgeous::before {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%;
+            width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: all 0.4s ease;
+        }
+
+        .btn-gorgeous:active::before {
+            left: 100%;
+        }
+
+        #evet {
+            background: linear-gradient(135deg, #ff0055, #ff0088);
+            box-shadow: 0 0 20px rgba(255, 0, 85, 0.4);
+            width: 100%; /* Flex düzeninde yer kaplaması için */
+            flex: 1;
+        }
+
+        #evet:active {
+            box-shadow: 0 0 30px rgba(255, 0, 85, 0.7);
+            transform: scale(0.95);
+        }
+
+        #hayir {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            backdrop-filter: blur(5px);
+            /* Mobilde daha hızlı kaçması için süre düşürüldü */
+            transition: left 0.15s cubic-bezier(0.25, 1, 0.5, 1), top 0.15s cubic-bezier(0.25, 1, 0.5, 1);
+            flex: 1;
+        }
+
+        /* Görkemli Başarı Ekranı */
+        #success-container {
+            display: none;
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 50;
+            background: radial-gradient(circle at center, rgba(42, 0, 21, 0.8) 0%, rgba(17, 0, 8, 0.9) 100%);
+            backdrop-filter: blur(10px);
+        }
+
+        .show-success {
+            display: flex !important;
+            animation: dramaticReveal 1s cubic-bezier(0.1, 0.8, 0.2, 1) forwards;
+        }
+
+        @keyframes dramaticReveal {
+            0% { opacity: 0; transform: scale(0.5) translateY(50px); filter: brightness(0); }
+            100% { opacity: 1; transform: scale(1) translateY(0); filter: brightness(1); }
+        }
+
+        /* Dev Kalp ve Neon Efekti */
+        .giant-heart {
+            width: 60vw; /* Mobilde ekrana göre boyutlanır */
+            max-width: 250px;
+            height: auto;
+            filter: drop-shadow(0 0 30px #ff0055) drop-shadow(0 0 80px #ff0088);
+            animation: intenseHeartbeat 1.2s infinite;
+        }
+
+        @keyframes intenseHeartbeat {
+            0% { transform: scale(1); filter: drop-shadow(0 0 30px #ff0055) drop-shadow(0 0 60px #ff0088); }
+            15% { transform: scale(1.15); filter: drop-shadow(0 0 50px #ff0055) drop-shadow(0 0 100px #ff0088); }
+            30% { transform: scale(1); filter: drop-shadow(0 0 30px #ff0055) drop-shadow(0 0 60px #ff0088); }
+            45% { transform: scale(1.15); filter: drop-shadow(0 0 50px #ff0055) drop-shadow(0 0 100px #ff0088); }
+            100% { transform: scale(1); filter: drop-shadow(0 0 30px #ff0055) drop-shadow(0 0 60px #ff0088); }
+        }
+
+        .glowing-text {
+            margin-top: 30px;
+            font-size: 8vw; /* Mobilde dinamik metin boyutu */
+            max-font-size: 2.5rem;
+            font-weight: 800;
+            text-align: center;
+            background: linear-gradient(to right, #ffb3c6, #ff0055, #ffb3c6);
+            background-size: 200% auto;
+            color: transparent;
+            -webkit-background-clip: text;
+            background-clip: text;
+            animation: textShine 3s linear infinite;
+            text-shadow: 0 0 20px rgba(255, 0, 85, 0.3);
+            padding: 0 20px;
+            line-height: 1.2;
+        }
+
+        @keyframes textShine {
+            to { background-position: 200% center; }
+        }
+        
+        /* Buton grubu için esnek düzen (Hayır gidince Evet ortalansın diye) */
+        .button-wrapper {
+            display: flex;
+            gap: 15px;
+            width: 100%;
+            position: relative;
+            justify-content: center;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="particles-container"></div>
+
+    <div id="main-card" class="glass-card flex flex-col items-center p-8 md:p-12 text-center">
+        <h1 class="text-3xl md:text-4xl font-bold mb-8 tracking-tight text-white/90 drop-shadow-md">
+            Beni seviyor musun? 🥺
+        </h1>
+        
+        <div class="button-wrapper" id="buton-grubu">
+            <button id="evet" class="btn-gorgeous text-white font-semibold py-3 px-6 md:py-4 md:px-10 rounded-full text-lg z-20">
+                Evet ❤️
+            </button>
+            <button id="hayir" class="btn-gorgeous text-white font-semibold py-3 px-6 md:py-4 md:px-10 rounded-full text-lg z-30">
+                Hayır 💔
+            </button>
+        </div>
+    </div>
+
+    <div id="success-container">
+        <svg class="giant-heart" viewBox="0 0 24 24" fill="#ff0055" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+        </svg>
+        <div class="glowing-text">
+            Ben de seni çok seviyorum! 🥰💖
+        </div>
+    </div>
+
+    <script>
+        const evetBtn = document.getElementById('evet');
+        const hayirBtn = document.getElementById('hayir');
+        const mainCard = document.getElementById('main-card');
+        const successContainer = document.getElementById('success-container');
+        const particlesContainer = document.getElementById('particles-container');
+
+        // Arka plan animasyonlarını oluştur
+        function createParticles() {
+            const particleCount = 20; // Mobilde kasmaması için sayı optimize edildi
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                particle.classList.add('particle');
+                particle.style.left = `${Math.random() * 100}vw`;
+                particle.style.animationDuration = `${8 + Math.random() * 10}s`;
+                particle.style.animationDelay = `${Math.random() * 5}s`;
+                const size = 10 + Math.random() * 20;
+                particle.style.width = `${size}px`;
+                particle.style.height = `${size}px`;
+                particlesContainer.appendChild(particle);
+            }
+        }
+        createParticles();
+
+        // Evet butonuna tıklanınca...
+        evetBtn.addEventListener('click', () => {
+            mainCard.classList.add('fade-out');
+            setTimeout(() => {
+                mainCard.style.display = 'none';
+                successContainer.classList.add('show-success');
+            }, 500); 
+        });
+
+        // Hayır butonunu kaçırma mantığı
+        const kacirButonu = (e) => {
+            // Eylemin varsayılan tıklama/seçme davranışını durdur (mobilde kritik!)
+            if(e) e.preventDefault(); 
+            
+            // İlk kaçışta pozisyonu sabitliyoruz
+            if (hayirBtn.style.position !== 'fixed') {
+                // Konumu sabitleyince boyutun bozulmaması için genişliği koruyoruz
+                const originalWidth = hayirBtn.offsetWidth;
+                hayirBtn.style.position = 'fixed';
+                hayirBtn.style.width = `${originalWidth}px`;
+            }
+            
+            // Ekran sınırlarını hesapla
+            const padding = 15; // Kenarlardan boşluk
+            const btnWidth = hayirBtn.offsetWidth;
+            const btnHeight = hayirBtn.offsetHeight;
+            
+            const maxX = window.innerWidth - btnWidth - padding; 
+            const maxY = window.innerHeight - btnHeight - padding;
+
+            // Güvenli sınırlar içinde rastgele X ve Y (asla ekran dışına çıkmaz)
+            const rastgeleX = Math.max(padding, Math.floor(Math.random() * maxX));
+            const rastgeleY = Math.max(padding, Math.floor(Math.random() * maxY));
+
+            hayirBtn.style.left = `${rastgeleX}px`;
+            hayirBtn.style.top = `${rastgeleY}px`;
+        };
+
+        // Tüm olası dokunma ve fare hareketlerini yakala!
+        // { passive: false } e.preventDefault()'un mobilde kesin çalışmasını sağlar
+        const eventTypes = ['touchstart', 'touchend', 'click', 'mouseover'];
+        eventTypes.forEach(eventType => {
+            hayirBtn.addEventListener(eventType, kacirButonu, { passive: false });
+        });
+    </script>
+</body>
+</html>
