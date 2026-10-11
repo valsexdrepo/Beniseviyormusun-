@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 220 48" fill="none">
+  <path d="M6 16V10a4 4 0 0 1 4-4h6M32 6h6a4 4 0 0 1 4 4v6M42 32v6a4 4 0 0 1-4 4h-6M16 42h-6a4 4 0 0 1-4-4v-6" stroke="#E6B450" stroke-width="2.4" stroke-linecap="round"/>
+  <path d="M18 34V14h14v5h-8.6v3.4H30v5h-6.6V34H18Z" fill="#F2F1EC"/>
+  <text x="62" y="33" fill="#F2F1EC" font-family="Bricolage Grotesque, Segoe UI, Arial, sans-serif" font-size="24" font-weight="700" letter-spacing="6">FRAME</text>
+</svg>
